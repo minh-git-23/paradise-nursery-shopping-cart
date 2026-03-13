@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addItem } from "../redux/CartSlice";
+import CartItem from "./CartItem";
 
 function ProductList() {
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
 
   const [addedItems, setAddedItems] = useState([]);
+  const [showCart, setShowCart] = useState(false);
 
   const plants = [
     {
@@ -74,7 +76,7 @@ function ProductList() {
     },
     {
       id: 10,
-      name: "Burro’s Tail",
+      name: "Burro's Tail",
       price: 11,
       category: "Succulents",
       image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b"
@@ -145,12 +147,18 @@ function ProductList() {
 
   const handleAddToCart = (plant) => {
     dispatch(addItem(plant));
-    setAddedItems([...addedItems, plant.id]);
+    if (!addedItems.includes(plant.id)) {
+      setAddedItems([...addedItems, plant.id]);
+    }
   };
 
   const getCartCount = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
+
+  if (showCart) {
+    return <CartItem setShowCart={setShowCart} />;
+  }
 
   return (
     <div>
@@ -175,9 +183,18 @@ function ProductList() {
           <a href="#" style={{ color: "white", textDecoration: "none" }}>
             Plants
           </a>
-          <a href="#" style={{ color: "white", textDecoration: "none" }}>
+          <button
+            onClick={() => setShowCart(true)}
+            style={{
+              color: "white",
+              background: "transparent",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "16px"
+            }}
+          >
             Cart ({getCartCount()})
-          </a>
+          </button>
         </div>
       </nav>
 
@@ -217,12 +234,13 @@ function ProductList() {
                         borderRadius: "8px"
                       }}
                     />
+
                     <h3>{plant.name}</h3>
                     <p>${plant.price}</p>
 
                     <button
-                      onClick={() => handleAddToCart(plant)}
                       disabled={addedItems.includes(plant.id)}
+                      onClick={() => handleAddToCart(plant)}
                       style={{
                         padding: "10px 15px",
                         backgroundColor: addedItems.includes(plant.id)
@@ -237,7 +255,7 @@ function ProductList() {
                       }}
                     >
                       {addedItems.includes(plant.id)
-                        ? "Added to Cart"
+                        ? "Added"
                         : "Add to Cart"}
                     </button>
                   </div>
